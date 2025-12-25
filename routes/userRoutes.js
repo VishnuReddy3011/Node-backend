@@ -116,7 +116,7 @@ router.post("/", async (req, res) => {
   const records = parseTsv(dbResponse.text);
 
   if (records.length === 0) {
-    return res.status(404).json({ message: "No records found for the given subOrderId." });
+    return res.status(404).json({ message: "No itemCodes found for the given subOrderId." });
   } else if (
     records[0].status === "COMPLETED" ||
     records[0].status === "CANCELLED"
@@ -145,7 +145,9 @@ router.post("/", async (req, res) => {
     body: shipmentPayload,
   });
   if (!shipmentResponse.ok) {
-    return res.status(500).json({ message: "Failed to create shipment." });
+    return res
+      .status(shipmentResponse.status)
+      .json(shipmentResponse.json);
   }
 
   const shipmentId = shipmentResponse.json.id;
@@ -178,7 +180,7 @@ router.post("/", async (req, res) => {
     body: packingPayload,
   });
   if (!packingResponse.ok) {
-    return res.status(500).json(packingResponse.json);
+    return res.status(packingResponse.status).json(packingResponse.json);
   }
 
   const invShippingLblUrl = `https://${req.body.client}.omni.increff.com/wms/pack/shipment/${shipmentId}/invoice-shippingLabel`;
@@ -189,38 +191,10 @@ router.post("/", async (req, res) => {
   });
 
   if (!invShippingLblResponse.ok) {
-    return res.status(500).json(invShippingLblResponse.json);
+    return res.status(invShippingLblResponse.status).json(invShippingLblResponse.json);
   }
 
   return res.status(201).json(itemCodes);
 });
-
-// /* READ ALL */
-// router.get("/", (req, res) => {
-//   res.json(clientDomainNames);
-// });
-
-// /* READ BY ID */
-// router.get("/:id", (req, res) => {
-//   const user = users.find((u) => u.id == req.params.id);
-//   if (!user) return res.status(404).json({ message: "User not found" });
-//   res.json(user);
-// });
-
-// /* UPDATE */
-// router.put("/:id", (req, res) => {
-//   const user = users.find((u) => u.id == req.params.id);
-//   if (!user) return res.status(404).json({ message: "User not found" });
-
-//   user.name = req.body.name;
-//   user.age = req.body.age;
-//   res.json(user);
-// });
-
-// /* DELETE */
-// router.delete("/:id", (req, res) => {
-//   users = users.filter((u) => u.id != req.params.id);
-//   res.json({ message: "User deleted successfully" });
-// });
 
 module.exports = router;
