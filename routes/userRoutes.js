@@ -30,7 +30,6 @@ async function postAxios(url, { headers = {}, body, params } = {}) {
     },
     params,
     responseType: "text",
-    // Don't throw on non-2xx; we’ll handle status ourselves like in your Python code
     validateStatus: () => true,
   });
 
@@ -193,8 +192,7 @@ router.post("/", async (req, res) => {
   if (!invShippingLblResponse.ok) {
     return res.status(invShippingLblResponse.status).json(invShippingLblResponse.json);
   }
-
-  return res.status(201).json(itemCodes);
+  return res.status(200).json({ message: "Order packed successfully.", channelOrderId: records[0].channel_order_id, parentOrderCode: records[0].parent_order_code });
 });
 
 module.exports = router;
