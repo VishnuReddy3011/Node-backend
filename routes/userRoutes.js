@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-
 const axios = require("axios");
 
 function parseTsv(tsvText) {
@@ -82,15 +81,9 @@ const clientDomainNames = {
   campussutra: "campussutra-oltp",
 };
 
-// Dummy data (acts like DB)
-//  
 
-/* CREATE */
+
 router.post("/", async (req, res) => {
-  const newUser = {
-    client: req.body.client,
-    subOrderId: req.body.subOrderId,
-  }
 
   const dbUrl = "https://saas.increff.com/webget/in/api/app/sql/result";
 
@@ -112,7 +105,6 @@ router.post("/", async (req, res) => {
           where oso.id = ${req.body.subOrderId};`,
   };
 
-
   const dbResponse = await postAxios(dbUrl, {
     headers: dbHeaders,
     body: dbPayload,
@@ -129,18 +121,84 @@ router.post("/", async (req, res) => {
     records[0].status === "COMPLETED" ||
     records[0].status === "CANCELLED"
   ) {
-    return res.status(400).json({ message: `The order is in ${records[0].status.toLowerCase()} status` });
+    return res.status(200).json({ message: `The order is in ${records[0].status.toLowerCase()} status` });
   }
 
   const itemCodes = records.map((record) => record.item_id);
 
-  res.status(201).json(itemCodes);
+  pack_headers = {
+    authDomainName: clientDomainNames[req.body.client],
+    authUsername: `${req.body.client}.user`,
+    authPassword: "myApi@1729",
+    clientId: records[0].client_id,
+    warehouseid: records[0].fulfillment_location_id,
+  };
+
+  const shipmentPayload = {
+    itemCodes: itemCodes,
+    orderId: req.body.subOrderId
+  };
+
+  const shipmentUrl = `https://${req.body.client}.omni.increff.com/wms/pack/piece/shipment`;
+  const shipmentResponse = await postAxios(shipmentUrl, {
+    headers: pack_headers,
+    body: shipmentPayload,
+  });
+  if (!shipmentResponse.ok) {
+    return res.status(500).json({ message: "Failed to create shipment." });
+  }
+
+  const shipmentId = shipmentResponse.json.id;
+
+  const subOrderUrl = `https://${req.body.client}.omni.increff.com/wms/orders/outward/sub-orders-response`;
+  const subOrderResponse = await postAxios(subOrderUrl, {
+    headers: pack_headers,
+    body: [req.body.subOrderId]
+  });
+
+  const packingUrl = `https://${req.body.client}.omni.increff.com/wms/pack/shipment/${shipmentId}/close`;
+  const areBoxLabelsAllowed = subOrderResponse.json?.data?.[0]?.areBoxLabelsAllowed;
+
+  const packingParams = {
+    arePackBoxLabelsRequired: String(areBoxLabelsAllowed).toLowerCase(),
+  };
+
+  const packingPayload = {
+    params: {
+      updates: null,
+      cloneFrom: null,
+      encoder: {},
+      map: {}
+    }
+  }
+
+  const packingResponse = await postAxios(packingUrl, {
+    headers: pack_headers,
+    params: packingParams,
+    body: packingPayload,
+  });
+  if (!packingResponse.ok) {
+    return res.status(500).json(packingResponse.json);
+  }
+
+  const invShippingLblUrl = `https://${req.body.client}.omni.increff.com/wms/pack/shipment/${shipmentId}/invoice-shippingLabel`;
+
+  const invShippingLblResponse = await postAxios(invShippingLblUrl, {
+    headers: pack_headers,
+    body: {}
+  });
+
+  if (!invShippingLblResponse.ok) {
+    return res.status(500).json(invShippingLblResponse.json);
+  }
+
+  return res.status(201).json(itemCodes);
 });
 
 // /* READ ALL */
-router.get("/", (req, res) => {
-  res.json(clientDomainNames);
-});
+// router.get("/", (req, res) => {
+//   res.json(clientDomainNames);
+// });
 
 // /* READ BY ID */
 // router.get("/:id", (req, res) => {
