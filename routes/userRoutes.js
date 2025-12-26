@@ -110,12 +110,24 @@ router.post("/", async (req, res) => {
   });
 
   if (!dbResponse.ok) {
-    return res.status(500).json({ message: "Failed to fetch item details from DB." });
+    return res
+      .status(500)
+      .json({
+        message: "Failed to fetch item details from DB.",
+        channel_order_id: records[0].channel_order_id,
+        parent_order_code: records[0].parent_order_code,
+      });
   }
   const records = parseTsv(dbResponse.text);
 
   if (records.length === 0) {
-    return res.status(404).json({ message: "No itemCodes found for the given subOrderId." });
+    return res
+      .status(404)
+      .json({
+        message: "No itemCodes found for the given subOrderId.",
+        channel_order_id: records[0].channel_order_id,
+        parent_order_code: records[0].parent_order_code,
+      });
   } else if (
     records[0].status === "COMPLETED" ||
     records[0].status === "CANCELLED"
@@ -179,7 +191,9 @@ router.post("/", async (req, res) => {
     body: packingPayload,
   });
   if (!packingResponse.ok) {
-    return res.status(packingResponse.status).json({message: `${packingResponse.text}\n\nChannel Order ID: ${records[0].channel_order_id}\nParent Order Code: ${records[0].parent_order_code}`});
+    const data = packingResponse.json;
+
+    return res.status(packingResponse.status).json({message:data.message, channel_order_id: records[0].channel_order_id, parent_order_code: records[0].parent_order_code });
   }
 
   const invShippingLblUrl = `https://${req.body.client}.omni.increff.com/wms/pack/shipment/${shipmentId}/invoice-shippingLabel`;
@@ -190,9 +204,10 @@ router.post("/", async (req, res) => {
   });
 
   if (!invShippingLblResponse.ok) {
-    return res.status(invShippingLblResponse.status).json({ message: `${invShippingLblResponse.text}\n\nChannel Order ID: ${records[0].channel_order_id}\nParent Order Code: ${records[0].parent_order_code}` });
+    const data = packingResponse.json;
+    return res.status(packingResponse.status).json({message:data.message, channel_order_id: records[0].channel_order_id, parent_order_code: records[0].parent_order_code });
   }
-  return res.status(200).json({ message: `Order packed successfully.\nChannel Order ID: ${records[0].channel_order_id}\nParent Order Code: ${records[0].parent_order_code}` });
+  return res.status(200).json({ message: "Order packed successfully." });
 });
 
 module.exports = router;
