@@ -64,6 +64,10 @@ const dbIds = {
   indoera: 215,
   instakart: 384,
   rocketcommerce: 98,
+  thimblerr: 357,
+  shaktibrandz: 209,
+  jghosiery: 213,
+  vmart: 147, 
 };
 
 const clientDomainNames = {
@@ -76,8 +80,12 @@ const clientDomainNames = {
   indoera: "indoera-oltp",
   aramya: "aramya-omni",
   instakart: "instakart-omni",
-  rocketcommerce: "rocketcommercem-oltp", // keeping your original mapping (note the 'm')
+  rocketcommerce: "rocketcommercem-oltp", 
   campussutra: "campussutra-oltp",
+  jghosiery: "jghosiery-oltp",
+  vmart: "vmart-oltp",
+  shaktibrandz: "shaktibrandz-oltp",
+  thimblerr: "thimblerr-omni",
 };
 
 
