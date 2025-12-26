@@ -139,10 +139,12 @@ router.post("/", async (req, res) => {
       });
   } else if (
     records[0].status === "COMPLETED" ||
-    records[0].status === "CANCELLED" ||
-    records[0].order_state === "READY_TO_DISPATCH"
+    records[0].status === "CANCELLED"
   ) {
     return res.status(200).json({ message: `The order is in ${records[0].status.toLowerCase()} status` });
+  }
+  else if (records[0].order_state === "READY_TO_DISPATCH") {
+    return res.status(200).json({ message: "The order is already packed and ready to dispatch."});
   }
 
   const itemCodes = records.map((record) => record.item_id);
