@@ -106,9 +106,10 @@ router.post("/", async (req, res) => {
     clearOnQuery: "on",
     autoSuggestions: "on",
     action: "QUERY",
-    query: `select wi.item_id, oso.fulfillment_location_id, oso.channel_order_id, oso.parent_order_code, oso.client_id, oso.status
+    query: `select wi.item_id, oso.fulfillment_location_id, oso.channel_order_id, oso.parent_order_code, oso.client_id, oso.status, wo.order_state
           from oms.oms_sub_orders oso
           left join wms.wms_item_order wi on oso.id = wi.order_id
+          left join wms.wms_order wo on oso.id = wo.order_id
           where oso.id = ${req.body.subOrderId};`,
   };
 
@@ -138,7 +139,8 @@ router.post("/", async (req, res) => {
       });
   } else if (
     records[0].status === "COMPLETED" ||
-    records[0].status === "CANCELLED"
+    records[0].status === "CANCELLED" ||
+    records[0].order_state === "READY_TO_DISPATCH"
   ) {
     return res.status(200).json({ message: `The order is in ${records[0].status.toLowerCase()} status` });
   }
