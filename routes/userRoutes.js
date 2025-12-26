@@ -109,7 +109,7 @@ router.post("/", async (req, res) => {
     query: `select wi.item_id, oso.fulfillment_location_id, oso.channel_order_id, oso.parent_order_code, oso.client_id, oso.status, wo.order_state
           from oms.oms_sub_orders oso
           left join wms.wms_item_order wi on oso.id = wi.order_id
-          left join wms.wms_order wo on oso.id = wo.order_id
+          left join wms.wms_wms_order wo on oso.id = wo.order_id
           where oso.id = ${req.body.subOrderId};`,
   };
 
