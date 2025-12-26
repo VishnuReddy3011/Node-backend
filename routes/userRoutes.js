@@ -192,7 +192,7 @@ router.post("/", async (req, res) => {
   if (!invShippingLblResponse.ok) {
     return res.status(invShippingLblResponse.status).json(invShippingLblResponse.json);
   }
-  return res.status(200).json({ message: "Order packed successfully.", channelOrderId: records[0].channel_order_id, parentOrderCode: records[0].parent_order_code });
+  return res.status(200).json({ message: `Order packed successfully.\nChannel Order ID: ${records[0].channel_order_id}\nParent Order Code: ${records[0].parent_order_code}` });
 });
-
+  
 module.exports = router;
