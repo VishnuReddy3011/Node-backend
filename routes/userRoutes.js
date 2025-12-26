@@ -179,7 +179,7 @@ router.post("/", async (req, res) => {
     body: packingPayload,
   });
   if (!packingResponse.ok) {
-    return res.status(packingResponse.status).json(packingResponse.json);
+    return res.status(packingResponse.status).json({message: `${packingResponse.text}\n\nChannel Order ID: ${records[0].channel_order_id}\nParent Order Code: ${records[0].parent_order_code}`});
   }
 
   const invShippingLblUrl = `https://${req.body.client}.omni.increff.com/wms/pack/shipment/${shipmentId}/invoice-shippingLabel`;
@@ -190,9 +190,9 @@ router.post("/", async (req, res) => {
   });
 
   if (!invShippingLblResponse.ok) {
-    return res.status(invShippingLblResponse.status).json(invShippingLblResponse.json);
+    return res.status(invShippingLblResponse.status).json({ message: `${invShippingLblResponse.text}\n\nChannel Order ID: ${records[0].channel_order_id}\nParent Order Code: ${records[0].parent_order_code}` });
   }
   return res.status(200).json({ message: `Order packed successfully.\nChannel Order ID: ${records[0].channel_order_id}\nParent Order Code: ${records[0].parent_order_code}` });
 });
-  
+
 module.exports = router;
