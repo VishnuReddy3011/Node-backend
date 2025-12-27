@@ -89,7 +89,6 @@ const clientDomainNames = {
 };
 
 
-
 router.post("/", async (req, res) => {
 
   const dbUrl = "https://saas.increff.com/webget/in/api/app/sql/result";
@@ -123,8 +122,6 @@ router.post("/", async (req, res) => {
       .status(500)
       .json({
         message: "Failed to fetch item details from DB.",
-        channel_order_id: records[0].channel_order_id,
-        parent_order_code: records[0].parent_order_code,
       });
   }
   const records = parseTsv(dbResponse.text);
@@ -133,18 +130,28 @@ router.post("/", async (req, res) => {
     return res
       .status(404)
       .json({
-        message: "No itemCodes found for the given subOrderId.",
-        channel_order_id: records[0].channel_order_id,
-        parent_order_code: records[0].parent_order_code,
+        message: "Invalid Sub Order ID. No records found.",
       });
-  } else if (
-    records[0].status === "COMPLETED" ||
-    records[0].status === "CANCELLED"
-  ) {
-    return res.status(200).json({ message: `The order is in ${records[0].status.toLowerCase()} status` });
   }
-  else if (records[0].order_state === "READY_TO_DISPATCH") {
-    return res.status(200).json({ message: "The order is already packed and ready to dispatch."});
+  else if (
+    records[0].status === "COMPLETED" ||
+    records[0].status === "CANCELLED" ||
+    records[0].status === "UNFULFILLABLE" ||
+    records[0].status === "FULFILLABLE"
+  ) {
+    return res
+      .status(200)
+      .json({
+        message: `The order is in ${records[0].status.toLowerCase()} status`,
+      });
+  } else if (!records[0].item_id) {
+    return res.status(404).json({
+      message: "Item codes not found for the given Sub Order ID.",
+    });
+  } else if (records[0].order_state === "READY_TO_DISPATCH") {
+    return res
+      .status(200)
+      .json({ message: "The order is already packed and ready to dispatch." });
   }
 
   const itemCodes = records.map((record) => record.item_id);
