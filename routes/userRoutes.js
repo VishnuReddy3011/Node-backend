@@ -216,8 +216,14 @@ router.post("/", async (req, res) => {
   });
 
   if (!invShippingLblResponse.ok) {
-    const data = packingResponse.json;
-    return res.status(packingResponse.status).json({message:data.message, channel_order_id: records[0].channel_order_id, parent_order_code: records[0].parent_order_code });
+    const data = invShippingLblResponse.json;
+    return res
+      .status(invShippingLblResponse.status)
+      .json({
+        message: data.message,
+        channel_order_id: records[0].channel_order_id,
+        parent_order_code: records[0].parent_order_code,
+      });
   }
   return res.status(200).json({ message: "Order packed successfully." });
 });
