@@ -87,7 +87,7 @@ const clientDomainNames = {
   vmart: "vmart-oltp",
   shaktibrandz: "shaktibrandz-oltp",
   thimblerr: "thimblerr-omni",
-  cjdarcl: "cjdarcl-omni"
+  cjdarcl: "cjdarcl-omni",
 };
 
 
