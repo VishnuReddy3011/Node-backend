@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const axios = require("axios");
-const ENV = require("../../config/env");
+const ENV = require("../config/env");
 
 const credentials = {
   dbAuthUsername: ENV.DB_AUTH_USERNAME,
