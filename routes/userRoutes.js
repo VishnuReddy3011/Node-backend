@@ -1,6 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const axios = require("axios");
+const ENV = require("../../config/env");
+
+const credentials = {
+  dbAuthUsername: ENV.DB_AUTH_USERNAME,
+  dbAuthPassword: ENV.DB_AUTH_PASSWORD,
+  dbAuthOrg: ENV.DB_AUTH_ORG,
+  wmsAuthPassword: ENV.WMS_AUTH_PASSWORD,
+};
 
 function parseTsv(tsvText) {
   const lines = (tsvText || "")
@@ -94,9 +102,9 @@ router.post("/", async (req, res) => {
   const dbUrl = "https://saas.increff.com/webget/in/api/app/sql/result";
 
   const dbHeaders = {
-    authUsername: 'meesho-alerts-user',
-    authPassword: '4533@Oi@Ul',
-    authOrgName: 'increff',
+    authUsername: credentials.dbAuthUsername,
+    authPassword: credentials.dbAuthPassword,
+    authOrgName: credentials.dbAuthOrg,
   };
 
   const dbPayload = {
@@ -159,7 +167,7 @@ router.post("/", async (req, res) => {
   pack_headers = {
     authDomainName: clientDomainNames[req.body.client],
     authUsername: `${req.body.client}.user`,
-    authPassword: "myApi@1729",
+    authPassword: credentials.wmsAuthPassword,
     clientId: records[0].client_id,
     warehouseid: records[0].fulfillment_location_id,
   };
