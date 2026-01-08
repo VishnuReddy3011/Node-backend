@@ -75,7 +75,8 @@ const dbIds = {
   thimblerr: 357,
   shaktibrandz: 209,
   jghosiery: 213,
-  vmart: 147, 
+  vmart: 147,
+  cjdarcl: 431
 };
 
 const clientDomainNames = {
@@ -94,6 +95,7 @@ const clientDomainNames = {
   vmart: "vmart-oltp",
   shaktibrandz: "shaktibrandz-oltp",
   thimblerr: "thimblerr-omni",
+  cjdarcl: "cjdarcl-omni",
 };
 
 
